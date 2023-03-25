@@ -9,7 +9,7 @@ TODO
     - kolizje z jedzeniem -> Asia
 
 2. metody w kaczce:
-    - utrata energi -> Asia
+    - utrata energi -> Asia (skopiować kod)
     - umieranie -> Asia
     - ruszanie się biorąc pod uwagę sens na macierzy -> Kuba
 
