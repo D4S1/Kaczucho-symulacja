@@ -1,0 +1,32 @@
+TODO
+
+1. funkcje do symulacji:
+    - generowanie kaczek -> Kuba
+    - generowanie jedzonka -> Kuba
+
+    - generowanie kaczki (rozmnazanie) -> Michał
+        ducks.add(Duck())
+    - kolizje z jedzeniem -> Asia
+
+2. metody w kaczce:
+    - utrata energi -> Asia
+    - umieranie -> Asia
+    - ruszanie się biorąc pod uwagę sens na macierzy -> Kuba
+
+3. obiekt jedzenia
+    - usuwanie sie -> Asia
+
+4. update ujący się plot -> Michał
+
+5. menu
+    - przycisk stop
+    - restart
+    - lepsza grafika
+
+6. starting page
+    - nazwa
+    - przeskalowana kaczuch
+    - ustawienia
+        + populacja
+        + biodensity
+    - przycisk start
