@@ -1,6 +1,6 @@
 import pygame
 from sys import exit
-from random import randint
+from random import randint, randrange
 
 from duck import Duck
 from food import Food
@@ -47,15 +47,22 @@ def main(population, bio_density):
     #menu_width = 300
     #screen_height = 800
     #screen_width = menu_width + screen_height
-    #(screen_height, const, )
+    #(screen_height, const)
+    
+    def generate_food(size: int) -> object:
+        # Funkcja generująca jedzenie
+        return Food(x = randrange(menu_width + size, screen_width - size, size),
+                    y = randrange(1 + size, screen_height - size, size))
 
     def add_food(food_frequency: float) -> None:
-        # im większe frequency tym mniej pojawi się jedzenia
+        # Funkcja generująca jedzenie, aby się nie powielało, im większe frequncy tym mniej jedzenia
+        food_width = int(5) # dla jedzenia o szerokości 5
         for i in range(int(bio_density * screen_height ** 2 // (food_frequency ** 2))):
-            bugs.add(Food(x = randint(menu_width + int(5/2), screen_width - int(5/2)),
-                          y = randint(1 + int(5/2), screen_height - int(5/2))))
-        # Aby jedzenie nie pojawiało się na poza planszą +/- 3 
-
+            new_food = generate_food(food_width)
+            while new_food in bugs:
+                new_food = generate_food(food_width)
+            bugs.add(new_food)
+        # Szerokość jedzenia to 5, dlatego +/- 5, dzięki temu jedzenie na siebie nie na chodzi
 
     # inicjacja środowiska pygame owego
     pygame.init()
