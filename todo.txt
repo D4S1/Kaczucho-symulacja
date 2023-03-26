@@ -2,7 +2,7 @@ TODO
 
 1. funkcje do symulacji:
     - generowanie kaczek -> Kuba
-    - generowanie jedzonka -> Kuba
+    - generowanie jedzonka -> Kuba ===DONE===
 
     - generowanie kaczki (rozmnazanie) -> Michał
         ducks.add(Duck())
