@@ -6,7 +6,7 @@ from duck import Duck
 from food import Food
 
 
-# ============== MENU ==============
+# === MENU ===
 def display_score(screen, font, start_time):
     current_time = int(pygame.time.get_ticks() / 1000) - start_time
     score_surf = font.render(f'Time: {current_time}', False, (64, 64, 64))
@@ -53,6 +53,18 @@ def main(population, bio_density):
 
     # SEKCJE OKNA
 
+    # intro screen
+
+    duck_logo = pygame.image.load('graphics/duckies/front.png').convert_alpha()
+    duck_logo = pygame.transform.rotozoom(duck_logo, 0, 4)
+    duck_logo_rect = duck_logo.get_rect(center=(screen_width // 2, screen_height // 2))
+
+    game_name = font.render('Ruber duck natural selection simulation', False, (0, 0, 0))
+    game_name_rect = game_name.get_rect(center=(screen_width // 2, 200))
+
+    game_message = font.render('Press space to run', False, (0, 0, 0))
+    game_message_rect = game_message.get_rect(center=(screen_width // 2, 600))
+
     # tło do symulacji
     background_surf = pygame.image.load('graphics/bg1.png').convert()
 
@@ -89,7 +101,7 @@ def main(population, bio_density):
     for i in range(int(bio_density * (screen_height ** 2) // (20 * 20))):
         bugs.add(Food(x=randint(menu_width, screen_width), y=randint(1, screen_height)))
 
-    running = True
+    running = False
     pause = False
     start_time = 0 
 
@@ -129,6 +141,11 @@ def main(population, bio_density):
             # sprawdzanie kolizji
             collision_sprite(ducks, bugs)
 
+        else:
+            screen.fill((255, 255, 255))
+            screen.blit(game_name, game_name_rect)
+            screen.blit(duck_logo, duck_logo_rect)
+            screen.blit(game_message, game_message_rect)
 
         pygame.display.update()
         
