@@ -10,20 +10,20 @@ from food import Food
 def display_score(screen, font, start_time):
     current_time = int(pygame.time.get_ticks() / 1000) - start_time
     score_surf = font.render(f'Time: {current_time}', False, (64, 64, 64))
-    score_rect = score_surf.get_rect(center=(100, 50))
+    score_rect = score_surf.get_rect(center=(menu_width//2, 50))
     screen.blit(score_surf, score_rect)
     return current_time
 
 
 def display_bio_density(screen, font, bio_density):
     score_surf = font.render(f'Bio_density: {bio_density}', False, (64, 64, 64))
-    score_rect = score_surf.get_rect(center=(100, 150))
+    score_rect = score_surf.get_rect(center=(menu_width//2, 150))
     screen.blit(score_surf, score_rect)
 
 
 def display_population(screen, font, ducks):
     score_surf = font.render(f'Populacja: {len(ducks.sprites())}', False, (64, 64, 64))
-    score_rect = score_surf.get_rect(center=(100, 250))
+    score_rect = score_surf.get_rect(center=(menu_width//2, 250))
     screen.blit(score_surf, score_rect)
 
 
@@ -46,7 +46,7 @@ def main(population, bio_density):
 
     # inicjacja środowiska pygame owego
     pygame.init()
-    screen = pygame.display.set_mode((1000, 800))
+    screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption('Natural selection')
     clock = pygame.time.Clock()
     font = pygame.font.Font('font/Pixeltype.ttf', 50)
@@ -57,22 +57,40 @@ def main(population, bio_density):
     background_surf = pygame.image.load('graphics/bg1.png').convert()
 
     # obszar menu bocznego
-    menu_surf = pygame.Surface((200, 800))
+    menu_surf = pygame.Surface((menu_width, screen_height))
     menu_surf.fill((255, 255, 255))
+
+    pause_surf = pygame.image.load('graphics/pause.png').convert_alpha()
+    pause_rect = pause_surf.get_rect(center=(menu_width // 2, 350))
+
+    play_surf = pygame.image.load('graphics/play.png').convert_alpha()
+    play_rect = play_surf.get_rect(center=(menu_width // 2, 350))
+
+    restart_surf = pygame.image.load('graphics/restart.png').convert_alpha()
+    restart_rect = restart_surf.get_rect(center=(menu_width // 2, 450))
 
     # GENERACJA OBIEKTÓW
 
     # generowanie losowe kaczek
     ducks = pygame.sprite.Group()
     for i in range(population):
-        ducks.add(Duck(name=f"Kaczucha no {i}", speed=randint(4, 8), energy=15000, x=randint(200, 1000), y=randint(1, 800)))
+        ducks.add(
+            Duck(
+                name=f"Kaczucha no {i}",
+                speed=randint(4, 8),
+                energy=15000,
+                x=randint(menu_width, screen_width),
+                y=randint(1, screen_height)
+            )
+        )
 
     # generowanie losowe jedzenia
     bugs = pygame.sprite.Group()
-    for i in range(int(bio_density * (800 * 800) // (20 * 20))):
-        bugs.add(Food(x=randint(200, 1000), y=randint(1, 800)))
+    for i in range(int(bio_density * (screen_height ** 2) // (20 * 20))):
+        bugs.add(Food(x=randint(menu_width, screen_width), y=randint(1, screen_height)))
 
     running = True
+    pause = False
     start_time = 0 
 
     while True:
@@ -91,23 +109,26 @@ def main(population, bio_density):
             # Wyświetlanie elementów symulacji
 
             # tło symulacji
-            screen.blit(background_surf, (200, 0))
+            screen.blit(background_surf, (menu_width, 0))
 
             # menu
             screen.blit(menu_surf, (0, 0))
             score = display_score(screen, font, start_time)
             display_bio_density(screen, font, bio_density)
             display_population(screen, font, ducks)
+            screen.blit(play_surf, play_rect)
+            screen.blit(restart_surf, restart_rect)
 
             # bugs
             bugs.draw(screen)
 
             # ducks
             ducks.draw(screen)
-            ducks.update()
+            ducks.update(menu_width, (screen_width, screen_height))
 
             # sprawdzanie kolizji
             collision_sprite(ducks, bugs)
+
 
         pygame.display.update()
         
@@ -116,4 +137,9 @@ def main(population, bio_density):
 
     
 if __name__ == '__main__':
+    menu_width = 300
+
+    screen_height = 800
+    screen_width = menu_width + screen_height
+
     main(40, 0.2)

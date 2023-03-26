@@ -63,6 +63,7 @@ out/
 atlassian-ide-plugin.xml
 
 .idea/
+__pycache__/
 
 # Cursive Clojure plugin
 .idea/replstate.xml

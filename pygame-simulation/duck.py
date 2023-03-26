@@ -65,7 +65,7 @@ class Duck(pygame.sprite.Sprite):
 
         self.image = self.frames[self.duck_direction][int(self.duck_frame_idx)]
 
-    def move(self):
+    def move(self, menu_width, screen_size):
         """
         funkcja modyfikująca współrzędne obiektu
         """
@@ -80,13 +80,13 @@ class Duck(pygame.sprite.Sprite):
         # nowa pozycja x-owa += kierunke[0] * speed
         # możliwe kierunki -> (-1, 0), (0, -1), (1, 0), (0, 1), (0, 0)
         self.rect.x += self.directions[next_dir][0] * self.speed
-        if self.rect.left < 200: self.rect.right = 1000
-        if self.rect.right > 1000: self.rect.left = 200
+        if self.rect.left < menu_width: self.rect.right = screen_size[0]
+        if self.rect.right > screen_size[0]: self.rect.left = menu_width
 
         # tak samo ja wyżej tylko, że dla y
         self.rect.y += self.directions[next_dir][1] * self.speed
-        if self.rect.top < 0: self.rect.bottom = 800
-        if self.rect.bottom > 800: self.rect.top = 0
+        if self.rect.top < 0: self.rect.bottom = screen_size[1]
+        if self.rect.bottom > screen_size[1]: self.rect.top = 0
 
     def energy_lost(self):
         '''
@@ -104,7 +104,7 @@ class Duck(pygame.sprite.Sprite):
         if self.energy <= 0:
             self.kill()
 
-    def update(self):
-        self.move()
+    def update(self, menu_width, screen_size):
+        self.move(menu_width, screen_size)
         self.energy_lost()
         self.alive()
