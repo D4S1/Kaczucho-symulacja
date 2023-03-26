@@ -1,14 +1,18 @@
 import pygame
 from random import randint, choice, random
 
+
 class Duck(pygame.sprite.Sprite):
 
-    def __init__(self,speed, x, y):
+    def __init__(self, name, speed, energy, x, y):
         super().__init__()
 
         # PARAMETRY ORGANIZMU
+        self.name = name
+
         self.speed = speed
         self.sense = 1
+        self.energy = energy
 
         # Prawdopodobieńśtwo, że kaczucha zmieni kierunek
         self.change_dir_probability = 0.3
@@ -39,13 +43,13 @@ class Duck(pygame.sprite.Sprite):
         self.frames['left'] = [pygame.transform.flip(img, True, False) for img in self.frames['right']]
 
         # ustawienie stanu animacji
-        self.directions = {'down': (0, 1), 'up': (0, -1), 'right': (1, 0), 'left': (-1,0), 'front': (0,0)}
+        self.directions = {'down': (0, 1), 'up': (0, -1), 'right': (1, 0), 'left': (-1, 0), 'front': (0, 0)}
         self.duck_direction = 'front'
         self.duck_frame_idx = 0
 
         # Pygame owe rzeczy
         self.image = self.frames['front'][0]
-        self.rect = self.image.get_rect(midbottom = (x, y))
+        self.rect = self.image.get_rect(midbottom=(x, y))
 
     def animation_state(self, next_dir):
         """
@@ -61,12 +65,11 @@ class Duck(pygame.sprite.Sprite):
 
         self.image = self.frames[self.duck_direction][int(self.duck_frame_idx)]
 
-
-
-    def update(self):
+    def move(self):
         """
         funkcja modyfikująca współrzędne obiektu
         """
+
         # ustawienie nowego kierunku
         next_dir = self.duck_direction
         if random() < self.change_dir_probability:
@@ -85,8 +88,7 @@ class Duck(pygame.sprite.Sprite):
         if self.rect.top < 0: self.rect.bottom = 800
         if self.rect.bottom > 800: self.rect.top = 0
 
-    
-    def update_energy(self: object, energy: float) -> float:
+    def energy_lost(self):
         '''
         Koszt energii w jednej jednostce czasu, jaki ponosi
         organizm. W przypadku jeśli spadnie to zera to
@@ -94,3 +96,15 @@ class Duck(pygame.sprite.Sprite):
         energy = enrgy - (speed^2 * sense)
         '''
         self.energy -= self.speed**2 * (self.sense / 0.5)
+
+    def eat(self):
+        self.energy += 100
+
+    def alive(self):
+        if self.energy <= 0:
+            self.kill()
+
+    def update(self):
+        self.move()
+        self.energy_lost()
+        self.alive()

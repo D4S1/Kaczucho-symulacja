@@ -6,15 +6,15 @@ TODO
 
     - generowanie kaczki (rozmnazanie) -> Michał
         ducks.add(Duck())
-    - kolizje z jedzeniem -> Asia
+!!!    - kolizje z jedzeniem -> Asia ===DONE===
 
 2. metody w kaczce:
-    - utrata energi -> Asia (skopiować kod)
-    - umieranie -> Asia
+!!!    - utrata energi -> Asia (skopiować kod) ===DONE===
+!!!    - umieranie -> Asia ===DONE===
     - ruszanie się biorąc pod uwagę sens na macierzy -> Kuba
 
 3. obiekt jedzenia
-    - usuwanie sie -> Asia
+!!!    - usuwanie sie -> Asia ===DONE===
 
 4. update ujący się plot -> Michał
 
