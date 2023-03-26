@@ -44,6 +44,19 @@ def collision_sprite(ducks, bugs):
 
 def main(population, bio_density):
 
+    #menu_width = 300
+    #screen_height = 800
+    #screen_width = menu_width + screen_height
+    #(screen_height, const, )
+
+    def add_food(food_frequency: float) -> None:
+        # im większe frequency tym mniej pojawi się jedzenia
+        for i in range(int(bio_density * screen_height ** 2 // (food_frequency ** 2))):
+            bugs.add(Food(x = randint(menu_width + int(5/2), screen_width - int(5/2)),
+                          y = randint(1 + int(5/2), screen_height - int(5/2))))
+        # Aby jedzenie nie pojawiało się na poza planszą +/- 3 
+
+
     # inicjacja środowiska pygame owego
     pygame.init()
     screen = pygame.display.set_mode((screen_width, screen_height))
@@ -98,8 +111,7 @@ def main(population, bio_density):
 
     # generowanie losowe jedzenia
     bugs = pygame.sprite.Group()
-    for i in range(int(bio_density * (screen_height ** 2) // (20 * 20))):
-        bugs.add(Food(x=randint(menu_width, screen_width), y=randint(1, screen_height)))
+    add_food(20) # Początkowe jedzenie const = 20
 
     running = False
     pause = False
@@ -132,6 +144,7 @@ def main(population, bio_density):
             screen.blit(restart_surf, restart_rect)
 
             # bugs
+            add_food(80)
             bugs.draw(screen)
 
             # ducks
@@ -158,5 +171,5 @@ if __name__ == '__main__':
 
     screen_height = 800
     screen_width = menu_width + screen_height
-
+    
     main(40, 0.2)
