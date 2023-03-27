@@ -102,7 +102,8 @@ def main(population, bio_density):
         bugs.add(Food(x=randint(menu_width, screen_width), y=randint(1, screen_height)))
 
     running = False
-    pause = False
+    intro = True
+
     start_time = 0 
 
     while True:
@@ -116,6 +117,7 @@ def main(population, bio_density):
             # pauza
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 running = not running
+                intro = False
 
         if running:
             # Wyświetlanie elementów symulacji
@@ -141,7 +143,7 @@ def main(population, bio_density):
             # sprawdzanie kolizji
             collision_sprite(ducks, bugs)
 
-        else:
+        elif intro:
             screen.fill((255, 255, 255))
             screen.blit(game_name, game_name_rect)
             screen.blit(duck_logo, duck_logo_rect)
