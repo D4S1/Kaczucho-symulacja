@@ -62,20 +62,20 @@ def main(population, bio_density):
             bugs.add(new_food)
         # Szerokość jedzenia to 5, dlatego +/- 5, dzięki temu jedzenie na siebie nie na chodzi
 
-    def new_ducks(number: int) -> None:
+    def new_ducks(number: int, width: int, height: int) -> None:
         '''
         Funkcja dodaje number kaczek do symulacji 
         W tym przypadku kaczki nachodzące na siebie nas nie dotyczy, bo ruch i tak
         tego nie uwzględnia.
         '''
-        for i in range(population):
+        for i in range(number):
             ducks.add(
                 Duck(
                     name = f"Kaczucha no {i}",
                     speed = randint(4, 8),
                     energy = 15000,
-                    x = randint(menu_width, screen_width),
-                    y = randint(1, screen_height)
+                    x = randint(width, width + height),
+                    y = randint(1, height)
                 )
             )
 
@@ -120,7 +120,7 @@ def main(population, bio_density):
 
     # generowanie losowe kaczek
     ducks = pygame.sprite.Group()
-    new_ducks(population)
+    new_ducks(population, menu_width, screen_height)
 
     # generowanie losowe jedzenia
     bugs = pygame.sprite.Group()
