@@ -44,18 +44,16 @@ def collision_sprite(ducks, bugs):
 
 def main(population, bio_density):
 
-    #menu_width = 300
-    #screen_height = 800
-    #screen_width = menu_width + screen_height
-    #(screen_height, const)
-    
     def generate_food(size: int) -> object:
         # Funkcja generująca jedzenie
         return Food(x = randrange(menu_width + size, screen_width - size, size),
                     y = randrange(1 + size, screen_height - size, size))
 
-    def add_food(food_frequency: float) -> None:
-        # Funkcja generująca jedzenie, aby się nie powielało, im większe frequncy tym mniej jedzenia
+    def new_food(food_frequency: float) -> None:
+        '''
+        Funkcja dodaje jedzenie na planszę.
+        Im większe frequency tym mniej jedzenia się pojawi.
+        '''
         food_width = int(5) # dla jedzenia o szerokości 5
         for i in range(int(bio_density * screen_height ** 2 // (food_frequency ** 2))):
             new_food = generate_food(food_width)
@@ -63,6 +61,23 @@ def main(population, bio_density):
                 new_food = generate_food(food_width)
             bugs.add(new_food)
         # Szerokość jedzenia to 5, dlatego +/- 5, dzięki temu jedzenie na siebie nie na chodzi
+
+    def new_ducks(number: int) -> None:
+        '''
+        Funkcja dodaje number kaczek do symulacji 
+        W tym przypadku kaczki nachodzące na siebie nas nie dotyczy, bo ruch i tak
+        tego nie uwzględnia.
+        '''
+        for i in range(population):
+            ducks.add(
+                Duck(
+                    name = f"Kaczucha no {i}",
+                    speed = randint(4, 8),
+                    energy = 15000,
+                    x = randint(menu_width, screen_width),
+                    y = randint(1, screen_height)
+                )
+            )
 
     # inicjacja środowiska pygame owego
     pygame.init()
@@ -105,24 +120,14 @@ def main(population, bio_density):
 
     # generowanie losowe kaczek
     ducks = pygame.sprite.Group()
-    for i in range(population):
-        ducks.add(
-            Duck(
-                name=f"Kaczucha no {i}",
-                speed=randint(4, 8),
-                energy=15000,
-                x=randint(menu_width, screen_width),
-                y=randint(1, screen_height)
-            )
-        )
+    new_ducks(population)
 
     # generowanie losowe jedzenia
     bugs = pygame.sprite.Group()
-    add_food(20) # Początkowe jedzenie const = 20
+    new_food(20) # Początkowe jedzenie const = 20
 
     running = False
-    intro = True
-
+    pause = False
     start_time = 0 
 
     while True:
@@ -136,7 +141,6 @@ def main(population, bio_density):
             # pauza
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 running = not running
-                intro = False
 
         if running:
             # Wyświetlanie elementów symulacji
@@ -153,7 +157,7 @@ def main(population, bio_density):
             screen.blit(restart_surf, restart_rect)
 
             # bugs
-            add_food(80)
+            new_food(80)
             bugs.draw(screen)
 
             # ducks
@@ -163,7 +167,7 @@ def main(population, bio_density):
             # sprawdzanie kolizji
             collision_sprite(ducks, bugs)
 
-        elif intro:
+        else:
             screen.fill((255, 255, 255))
             screen.blit(game_name, game_name_rect)
             screen.blit(duck_logo, duck_logo_rect)
