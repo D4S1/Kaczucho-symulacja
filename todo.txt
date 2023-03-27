@@ -1,7 +1,7 @@
 TODO
 
 1. funkcje do symulacji:
-    - generowanie kaczek -> Kuba
+    - generowanie kaczek -> Kuba ===DONE===
     - generowanie jedzonka -> Kuba ===DONE===
 
     - generowanie kaczki (rozmnazanie) -> Michał
@@ -11,7 +11,7 @@ TODO
 2. metody w kaczce:
 !!!    - utrata energi -> Asia (skopiować kod) ===DONE===
 !!!    - umieranie -> Asia ===DONE===
-    - ruszanie się biorąc pod uwagę sens na macierzy -> Kuba
+    - ruszanie się biorąc pod uwagę sens na macierzy -> Kuba ===DONE===
 
 3. obiekt jedzenia
 !!!    - usuwanie sie -> Asia ===DONE===
