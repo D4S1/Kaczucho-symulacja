@@ -6,16 +6,23 @@ import matplotlib.pyplot as plt
 
 from duck import Duck
 from food import Food
+from button import Button
 
 
 # === MENU ===
-def display_score(screen, font, start_time):
-    current_time = int(pygame.time.get_ticks() / 1000) - start_time
+def display_score(screen, font, start_time, pause):
+    current_time = int(pygame.time.get_ticks() / 1000) -start_time -pause
     score_surf = font.render(f'Time: {current_time}', False, (64, 64, 64))
     score_rect = score_surf.get_rect(center=(menu_width//2, 50))
     screen.blit(score_surf, score_rect)
-    return current_time
 
+def frozen_time(screen, font, time):
+    time_surf = font.render(f'Time: {time}', False, (64, 64, 64))
+    time_rect = time_surf.get_rect(center=(menu_width // 2, 50))
+    screen.blit(time_surf, time_rect)
+
+def calculate_pause(start_time):
+    return int(pygame.time.get_ticks() / 1000) - start_time
 
 def display_bio_density(screen, font, bio_density):
     score_surf = font.render(f'Bio_density: {bio_density}', False, (64, 64, 64))
@@ -27,6 +34,7 @@ def display_population(screen, font, ducks):
     score_surf = font.render(f'Populacja: {len(ducks.sprites())}', False, (64, 64, 64))
     score_rect = score_surf.get_rect(center=(menu_width//2, 250))
     screen.blit(score_surf, score_rect)
+    return len(ducks.sprites())
 
 
 # === HELPER FUNCTIONS ===
@@ -87,6 +95,7 @@ def main(population, bio_density):
             bugs.add(new_food)
         # Szerokość jedzenia to 5, dlatego +/- 5, dzięki temu jedzenie na siebie nie na chodzi
 
+
     def new_ducks(number: int, width: int, height: int) -> None:
         '''
         Funkcja dodaje number kaczek do symulacji 
@@ -134,14 +143,11 @@ def main(population, bio_density):
     menu_surf = pygame.Surface((menu_width, screen_height))
     menu_surf.fill((255, 255, 255))
 
-    pause_surf = pygame.image.load('graphics/pause.png').convert_alpha()
-    pause_rect = pause_surf.get_rect(center=(menu_width // 2, 350))
+    pause_img = pygame.image.load('graphics/pause.png').convert_alpha()
+    play_img = pygame.image.load('graphics/play.png').convert_alpha()
+    pause_button = Button(menu_width // 2, 350, play_img)
 
-    play_surf = pygame.image.load('graphics/play.png').convert_alpha()
-    play_rect = play_surf.get_rect(center=(menu_width // 2, 350))
-
-    restart_surf = pygame.image.load('graphics/restart.png').convert_alpha()
-    restart_rect = restart_surf.get_rect(center=(menu_width // 2, 450))
+    restart_button = Button(menu_width // 2, 450, pygame.image.load('graphics/restart.png').convert_alpha())
 
     # GENERACJA OBIEKTÓW
 
@@ -157,8 +163,19 @@ def main(population, bio_density):
     fig, ax = plt.subplots()
 
     running = False
+    intro = True
+
+    start_time = 0
+    pause_start = 0
+    pause_gap = 0
+
+    # Timer
+    food_timer = pygame.USEREVENT + 1
+    pygame.time.set_timer(food_timer, 4000)
+
     pause = False
-    start_time = 0 
+    start_time = 0
+
 
     while True:
 
@@ -168,9 +185,21 @@ def main(population, bio_density):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
+
             # pauza
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                if not intro:
+                    pause_start = int(pygame.time.get_ticks() / 1000) - pause_start
+                    pause_button.action = not pause_button.action
+                    pause_button.image = pause_img if pause_button.action else play_img
+
                 running = not running
+                intro = False
+
+            if running:
+                if event.type == food_timer:
+                    new_food(40)
+
 
         if running:
             # Wyświetlanie elementów symulacji
@@ -180,17 +209,26 @@ def main(population, bio_density):
 
             # menu
             screen.blit(menu_surf, (0, 0))
-            score = display_score(screen, font, start_time)
+            display_score(screen, font, start_time, pause_gap)
             display_bio_density(screen, font, bio_density)
-            display_population(screen, font, ducks)
-            screen.blit(play_surf, play_rect)
-            screen.blit(restart_surf, restart_rect)
+            population = display_population(screen, font, ducks)
+
+            if pause_button.draw(screen):
+                pause_start = int(pygame.time.get_ticks() / 1000) - pause_start
+                pause_button.image = pause_img
+                running = not running
+
+            if restart_button.draw(screen):
+                restart_button.action = False
+                intro = True
+                running = False
+                start_time = int(pygame.time.get_ticks() / 1000)
 
             # wykres
             draw_population_graph(ax, ducks)
 
             # bugs
-            new_food(80)
+
             bugs.draw(screen)
 
             # ducks
@@ -200,16 +238,32 @@ def main(population, bio_density):
             # sprawdzanie kolizji
             collision_sprite(ducks, bugs)
 
-        else:
+        elif intro:
             screen.fill((255, 255, 255))
             screen.blit(game_name, game_name_rect)
             screen.blit(duck_logo, duck_logo_rect)
             screen.blit(game_message, game_message_rect)
 
+        else:
+            screen.blit(menu_surf, (0, 0))
+            frozen_time(screen, font, pause_start)
+            display_bio_density(screen, font, bio_density)
+            population = display_population(screen, font, ducks)
+
+            if not pause_button.draw(screen):
+                running = not running
+                pause_button.image = play_img
+
+            restart_button.draw(screen)
+            pause_gap = calculate_pause(pause_start)
+
+        if population == 0:
+            running = False
         pygame.display.update()
         
         # ustawienie klatek na sekunde -> 30fps
         clock.tick(30)
+
 
     
 if __name__ == '__main__':
