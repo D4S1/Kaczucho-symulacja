@@ -20,7 +20,7 @@ class Duck(pygame.sprite.Sprite):
         self.step_energy_cost = self.speed**2 + (self.sense / 0.5)
 
         # Koszt energii na rozmnażanie
-        self.reproduction_energy_cost = 40 * self.step_energy_cost
+        self.reproduction_energy_cost = 50 * self.step_energy_cost
 
         # Prawdopodobieństwo, że zajdzie mutacja przy rozmnażaniu
         self.mutation_probability = 0.5
@@ -109,6 +109,9 @@ class Duck(pygame.sprite.Sprite):
         self.energy -= self.step_energy_cost
 
     def mutate(self):
+        """
+        Funkcja generuje zmutowane (lub nie) parametry dla potomstwa
+        """
         speed = self.speed
         sense = self.sense
 
@@ -131,7 +134,7 @@ class Duck(pygame.sprite.Sprite):
         warto się zastanowić nad energią graniczną wymaganą do rozmnażania,
         energią zużywaną na rozmnażanie i energią nadawaną dzieciom
         """
-        if self.energy >= 5 * self.reproduction_energy_cost:
+        if self.energy >= 3 * self.reproduction_energy_cost:
             self.energy -= self.reproduction_energy_cost
             speed, sense = self.mutate()
             self.group.add(
@@ -139,7 +142,7 @@ class Duck(pygame.sprite.Sprite):
                     name=f"Kaczucha",
                     speed=speed,
                     sense=sense,
-                    energy=4 * self.reproduction_energy_cost,
+                    energy=2 * self.reproduction_energy_cost,
                     x=self.rect.x,
                     y=self.rect.y,
                     group=self.group

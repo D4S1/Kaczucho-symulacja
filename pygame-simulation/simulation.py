@@ -16,13 +16,16 @@ def display_score(screen, font, start_time, pause):
     score_rect = score_surf.get_rect(center=(menu_width//2, 50))
     screen.blit(score_surf, score_rect)
 
+
 def frozen_time(screen, font, time):
     time_surf = font.render(f'Time: {time}', False, (64, 64, 64))
     time_rect = time_surf.get_rect(center=(menu_width // 2, 50))
     screen.blit(time_surf, time_rect)
 
+
 def calculate_pause(start_time):
     return int(pygame.time.get_ticks() / 1000) - start_time
+
 
 def display_bio_density(screen, font, bio_density):
     score_surf = font.render(f'Bio_density: {bio_density}', False, (64, 64, 64))
@@ -62,15 +65,16 @@ def draw_population_graph(ax, group):
     :param group:
     :return:
     """
-    x = [duck.speed for duck in group]
-    y = [duck.sense for duck in group]
-    count = Counter(zip(x, y))
-    size = [50 * count[(x1, y1)] for x1, y1 in zip(x, y)]
     ax.clear()
-    ax.set(xlim=(0, 15), ylim=(0, 10), xlabel="speed", ylabel="sense", title="Populacja kaczek")
-    ax.set_xlim(0, 15)
-    ax.set_ylim(0, 10)
-    ax.scatter(x, y, s=size)
+    if group:
+        x = [duck.speed for duck in group]
+        y = [duck.sense for duck in group]
+        count = Counter(zip(x, y))
+        size = [50 * count[(x1, y1)] for x1, y1 in zip(x, y)]
+        ax.set(xlim=(0, 15), ylim=(0, 10), xlabel="speed", ylabel="sense", title="Populacja kaczek")
+        ax.set_xlim(0, 15)
+        ax.set_ylim(0, 10)
+        ax.scatter(x, y, s=size)
     plt.show(block=False)
     plt.pause(1./30)
 
@@ -106,7 +110,7 @@ def main(population, bio_density):
             ducks.add(
                 Duck(
                     name=f"Kaczucha no {i}",
-                    speed=randint(7, 12),
+                    speed=randint(6, 10),
                     sense=randint(1, 5),
                     energy=15000,
                     x=randint(width, width + height),
@@ -259,11 +263,12 @@ def main(population, bio_density):
 
         if population == 0:
             running = False
+            draw_population_graph(ax, [])
+
         pygame.display.update()
         
         # ustawienie klatek na sekunde -> 30fps
         clock.tick(30)
-
 
     
 if __name__ == '__main__':
