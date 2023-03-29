@@ -1,6 +1,8 @@
 import pygame
 from sys import exit
 from random import randint, randrange
+from collections import Counter
+import matplotlib.pyplot as plt
 
 from duck import Duck
 from food import Food
@@ -42,6 +44,29 @@ def collision_sprite(ducks, bugs):
             duck.eat()
 
 
+# === GRAPH ===
+
+def draw_population_graph(ax, group):
+    """
+    Funkcja rysuje wykres.
+    Promień koła odpowiada liczbie kaczek o danych atryburach.
+    :param ax:
+    :param group:
+    :return:
+    """
+    x = [duck.speed for duck in group]
+    y = [duck.sense for duck in group]
+    count = Counter(zip(x, y))
+    size = [50 * count[(x1, y1)] for x1, y1 in zip(x, y)]
+    ax.clear()
+    ax.set(xlim=(0, 15), ylim=(0, 10), xlabel="speed", ylabel="sense", title="Populacja kaczek")
+    ax.set_xlim(0, 15)
+    ax.set_ylim(0, 10)
+    ax.scatter(x, y, s=size)
+    plt.show(block=False)
+    plt.pause(1./30)
+
+
 def main(population, bio_density):
 
     def generate_food(size: int) -> object:
@@ -71,11 +96,13 @@ def main(population, bio_density):
         for i in range(number):
             ducks.add(
                 Duck(
-                    name = f"Kaczucha no {i}",
-                    speed = randint(4, 8),
-                    energy = 15000,
-                    x = randint(width, width + height),
-                    y = randint(1, height)
+                    name=f"Kaczucha no {i}",
+                    speed=randint(7, 12),
+                    sense=randint(1, 5),
+                    energy=15000,
+                    x=randint(width, width + height),
+                    y=randint(1, height),
+                    group=ducks
                 )
             )
 
@@ -126,6 +153,9 @@ def main(population, bio_density):
     bugs = pygame.sprite.Group()
     new_food(20) # Początkowe jedzenie const = 20
 
+    # deklaracja wykresu
+    fig, ax = plt.subplots()
+
     running = False
     pause = False
     start_time = 0 
@@ -156,6 +186,9 @@ def main(population, bio_density):
             screen.blit(play_surf, play_rect)
             screen.blit(restart_surf, restart_rect)
 
+            # wykres
+            draw_population_graph(ax, ducks)
+
             # bugs
             new_food(80)
             bugs.draw(screen)
@@ -185,4 +218,4 @@ if __name__ == '__main__':
     screen_height = 800
     screen_width = menu_width + screen_height
     
-    main(40, 0.2)
+    main(40, 0.3)
