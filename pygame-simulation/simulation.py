@@ -1,6 +1,8 @@
 import pygame
 from sys import exit
 from random import randint, randrange
+from collections import Counter
+import matplotlib.pyplot as plt
 
 from duck import Duck
 from food import Food
@@ -14,13 +16,16 @@ def display_score(screen, font, start_time, pause):
     score_rect = score_surf.get_rect(center=(menu_width//2, 50))
     screen.blit(score_surf, score_rect)
 
+
 def frozen_time(screen, font, time):
     time_surf = font.render(f'Time: {time}', False, (64, 64, 64))
     time_rect = time_surf.get_rect(center=(menu_width // 2, 50))
     screen.blit(time_surf, time_rect)
 
+
 def calculate_pause(start_time):
     return int(pygame.time.get_ticks() / 1000) - start_time
+
 
 def display_bio_density(screen, font, bio_density):
     score_surf = font.render(f'Bio_density: {bio_density}', False, (64, 64, 64))
@@ -48,6 +53,30 @@ def collision_sprite(ducks, bugs):
     for duck in ducks.sprites():
         if pygame.sprite.spritecollide(duck, bugs, True):
             duck.eat()
+
+
+# === GRAPH ===
+
+def draw_population_graph(ax, group):
+    """
+    Funkcja rysuje wykres.
+    Promień koła odpowiada liczbie kaczek o danych atryburach.
+    :param ax:
+    :param group:
+    :return:
+    """
+    ax.clear()
+    if group:
+        x = [duck.speed for duck in group]
+        y = [duck.sense for duck in group]
+        count = Counter(zip(x, y))
+        size = [50 * count[(x1, y1)] for x1, y1 in zip(x, y)]
+        ax.set(xlim=(0, 15), ylim=(0, 10), xlabel="speed", ylabel="sense", title="Populacja kaczek")
+        ax.set_xlim(0, 15)
+        ax.set_ylim(0, 10)
+        ax.scatter(x, y, s=size)
+    plt.show(block=False)
+    plt.pause(1./30)
 
 
 def main(population, bio_density):
@@ -81,10 +110,12 @@ def main(population, bio_density):
             ducks.add(
                 Duck(
                     name = f"Kaczucha no {i}",
-                    speed = randint(4, 8),
+                    speed = randint(6, 10),
+                    sense = randint(1, 5),
                     energy = 15000,
                     x = randint(width, width + height),
-                    y = randint(1, height)
+                    y = randint(1, height),
+                    group = ducks
                 )
             )
 
@@ -131,6 +162,9 @@ def main(population, bio_density):
     # generowanie losowe jedzenia
     bugs = pygame.sprite.Group()
     new_food(20) # Początkowe jedzenie const = 20
+
+    # deklaracja wykresu
+    fig, ax = plt.subplots()
 
     running = False
     intro = True
@@ -193,6 +227,9 @@ def main(population, bio_density):
                 running = False
                 start_time = int(pygame.time.get_ticks() / 1000)
 
+            # wykres
+            draw_population_graph(ax, ducks)
+
             # bugs
 
             bugs.draw(screen)
@@ -225,11 +262,12 @@ def main(population, bio_density):
 
         if population == 0:
             running = False
+            draw_population_graph(ax, [])
+
         pygame.display.update()
         
         # ustawienie klatek na sekunde -> 30fps
         clock.tick(30)
-
 
     
 if __name__ == '__main__':
@@ -238,4 +276,4 @@ if __name__ == '__main__':
     screen_height = 800
     screen_width = menu_width + screen_height
     
-    main(40, 0.2)
+    main(40, 0.3)

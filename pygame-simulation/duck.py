@@ -1,18 +1,29 @@
 import pygame
+import math
 from random import randint, choice, random
 
 
 class Duck(pygame.sprite.Sprite):
 
-    def __init__(self, name, speed, energy, x, y):
+    def __init__(self, name, speed, sense, energy, x, y, group):
         super().__init__()
 
         # PARAMETRY ORGANIZMU
         self.name = name
 
         self.speed = speed
-        self.sense = 1
+        self.sense = sense
         self.energy = energy
+        self.group = group
+
+        # Koszt energii na 1 krok
+        self.step_energy_cost = self.speed**2 + (self.sense / 0.5)
+
+        # Koszt energii na rozmnażanie
+        self.reproduction_energy_cost = 50 * self.step_energy_cost
+
+        # Prawdopodobieństwo, że zajdzie mutacja przy rozmnażaniu
+        self.mutation_probability = 0.5
 
         # Prawdopodobieńśtwo, że kaczucha zmieni kierunek
         self.change_dir_probability = 0.3
@@ -95,7 +106,48 @@ class Duck(pygame.sprite.Sprite):
         kaczucha umiera.
         energy = enrgy - (speed^2 * sense)
         '''
-        self.energy -= self.speed**2 * (self.sense / 0.5)
+        self.energy -= self.step_energy_cost
+
+    def mutate(self):
+        """
+        Funkcja generuje zmutowane (lub nie) parametry dla potomstwa
+        """
+        speed = self.speed
+        sense = self.sense
+
+        if random() < self.mutation_probability:
+            if speed <= 1 or random() >= 0.5:
+                speed += math.ceil(0.1 * speed)
+            else:
+                speed -= math.ceil(0.1 * speed)
+
+            if sense <= 1 or random() >= 0.5:
+                sense += 1
+            else:
+                sense -= 1
+
+        return speed, sense
+
+    def reproduce(self):
+        """
+        funkcja rozmnażająca kaczki
+        warto się zastanowić nad energią graniczną wymaganą do rozmnażania,
+        energią zużywaną na rozmnażanie i energią nadawaną dzieciom
+        """
+        if self.energy >= 3 * self.reproduction_energy_cost:
+            self.energy -= self.reproduction_energy_cost
+            speed, sense = self.mutate()
+            self.group.add(
+                Duck(
+                    name=f"Kaczucha",
+                    speed=speed,
+                    sense=sense,
+                    energy=2 * self.reproduction_energy_cost,
+                    x=self.rect.x,
+                    y=self.rect.y,
+                    group=self.group
+                )
+            )
 
     def eat(self):
         self.energy += 100
@@ -107,4 +159,5 @@ class Duck(pygame.sprite.Sprite):
     def update(self, menu_width, screen_size):
         self.move(menu_width, screen_size)
         self.energy_lost()
+        self.reproduce()
         self.alive()
