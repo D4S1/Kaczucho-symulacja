@@ -143,9 +143,6 @@ def main(population, bio_density):
     food_timer = pygame.USEREVENT + 1
     pygame.time.set_timer(food_timer, 4000)
 
-    pause = False
-    start_time = 0
-
 
     while True:
 
@@ -190,6 +187,8 @@ def main(population, bio_density):
 
             if restart_button.draw(screen):
                 restart_button.action = False
+                pause_start = 0
+                pause_gap = 0
                 intro = True
                 running = False
                 start_time = int(pygame.time.get_ticks() / 1000)

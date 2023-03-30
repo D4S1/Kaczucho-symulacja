@@ -19,13 +19,13 @@ TODO
 4. update ujący się plot -> Michał
 
 5. menu
-    - przycisk stop
+    - przycisk stop ===DONE===
     - restart
-    - lepsza grafika
+    - lepsza grafika ===DONE===
 
 6. starting page
-    - nazwa
-    - przeskalowana kaczuch
+    - nazwa ===DONE===
+    - przeskalowana kaczuch ===DONE===
     - ustawienia
         + populacja
         + biodensity
