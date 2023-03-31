@@ -4,7 +4,7 @@ TODO
     - generowanie kaczek -> Kuba ===DONE===
     - generowanie jedzonka -> Kuba ===DONE===
 
-    - generowanie kaczki (rozmnazanie) -> Michał
+    - generowanie kaczki (rozmnazanie) -> Michał ===DONE===
         ducks.add(Duck())
 !!!    - kolizje z jedzeniem -> Asia ===DONE===
 
@@ -16,7 +16,7 @@ TODO
 3. obiekt jedzenia
 !!!    - usuwanie sie -> Asia ===DONE===
 
-4. update ujący się plot -> Michał
+4. update ujący się plot -> Michał ===DONE===
 
 5. menu
     - przycisk stop ===DONE===
