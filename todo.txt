@@ -20,7 +20,7 @@ TODO
 
 5. menu
     - przycisk stop ===DONE===
-    - restart
+    - restart -> funckja start simulation
     - lepsza grafika ===DONE===
 
 6. starting page

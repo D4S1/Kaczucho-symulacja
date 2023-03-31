@@ -1,8 +1,9 @@
 import numpy as np
 from random import randint
 
+
 def test_sense(rows: int, columns: int):
-    board = np.zeros((rows, columns), dtype = np.int32)
+    board = np.zeros((rows, columns), dtype=np.int32)
 
     def generating_food(number: int) -> None:
         # -1 na macierzy to jedzenie
