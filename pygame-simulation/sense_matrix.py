@@ -26,15 +26,15 @@ def test_sense(rows: int, columns: int):
             board[y][x] = 1
             return (y, x)
 
-    generating_food(4)
+    generating_food(6)
     duck_y, duck_x = generation_duck(2)
     print(board)
     print('Współrzędne kaczki: ', duck_y, duck_x)
     
     def check_food(lista: list) -> tuple:
-        for el in lista:
-            if board[el[0] % rows][el[1] % columns] == -1:
-                return (el[0] % rows, el[1] % columns)
+        for y, x in lista:
+            if board[y % rows][x % columns] == -1:
+                return (y % rows, x % columns)
         return None
 
     def closest_food(y: int, x: int, sense: int) -> (tuple, int):
@@ -47,29 +47,24 @@ def test_sense(rows: int, columns: int):
         jest zwrócona na dół to trzeba y + 1, a jak w prawo i w lewo to analogicznie
         tylko swap x oraz y
         '''
-        coordinates = [[(y - 1) % rows, x % columns]]
-        check = check_food(coordinates)
-        for i in range(1, sense):
-            if check:
-                #print(i, coordinates)
-                return check, i
-            if i % 2 == 0:
-                coordinates.pop(-1)
-                coordinates.pop(-1)
-            for j in range(1, len(coordinates)):
-                if j % 2 == 1:
-                    coordinates[j][1] = (coordinates[j][1] + 1) % columns
-                else:
-                    coordinates[j][1] = (coordinates[j][1] - 1) % columns
+        coordinates = [[y % rows, x % columns]]
+        print(f"{coordinates}")
+        check = None
+        for i in range(1, sense + 1):
 
-            coordinates.insert(1, [coordinates[0][0], (coordinates[0][1] - 1) % columns])
-            coordinates.insert(1, [coordinates[0][0], (coordinates[0][1] + 1) % columns])
-            coordinates[0] = [(coordinates[0][0] - 1), coordinates[0][1]]
+            for j in range(0, len(coordinates)):
+                # print(f"{coordinates[j][0] - 1=}")
+                coordinates[j][0] = (coordinates[j][0] - 1) % rows
+                # print(f"{coordinates=}")
+
+            coordinates.append([coordinates[0][0], (coordinates[0][1] - i) % columns])
+            coordinates.append([coordinates[0][0], (coordinates[0][1] + i) % columns])
             check = check_food(coordinates)
-            #print('Pętla: ', coordinates)
-        return None
+            print(f"odeległość {i} \t {coordinates=}")
+            if check:
+                return check
     
-    return(closest_food(duck_y, duck_x, 8))
+    return closest_food(duck_y, duck_x, 3)
 
 # krotka to współrzędne punktu, najlbiższego jedzenia, jak None to znaczy, że nie ma jedzenia w zasięgu
 # druga wartość zwraca liczbę ruchów

@@ -37,7 +37,6 @@ def display_population(screen, font, ducks):
     score_surf = font.render(f'Populacja: {len(ducks.sprites())}', False, (64, 64, 64))
     score_rect = score_surf.get_rect(center=(menu_width//2, 250))
     screen.blit(score_surf, score_rect)
-    return len(ducks.sprites())
 
 
 # === HELPER FUNCTIONS ===
@@ -157,21 +156,12 @@ def main(population, bio_density):
 
     # generowanie losowe kaczek
     ducks = pygame.sprite.Group()
-    new_ducks(population, menu_width, screen_height)
 
     # generowanie losowe jedzenia
     bugs = pygame.sprite.Group()
-    new_food(20) # Początkowe jedzenie const = 20
-
-    # deklaracja wykresu
-    fig, ax = plt.subplots()
 
     running = False
     intro = True
-
-    start_time = 0
-    pause_start = 0
-    pause_gap = 0
 
     # Timer
     food_timer = pygame.USEREVENT + 1
@@ -190,12 +180,24 @@ def main(population, bio_density):
             # pauza
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 if not intro:
-                    pause_start = int(pygame.time.get_ticks() / 1000) - pause_start
+                    pause_start = int(pygame.time.get_ticks() / 1000) - pause_gap - start_time
                     pause_button.action = not pause_button.action
                     pause_button.image = pause_img if pause_button.action else play_img
+                else:
+                    intro = False
+                    new_ducks(population, menu_width, screen_height)
+                    new_food(20)  # Początkowe jedzenie const = 20
+
+                    # deklaracja wykresu
+                    fig, ax = plt.subplots()
+
+                    start_time = int(pygame.time.get_ticks() / 1000)
+                    pause_button.action = False
+                    pause_start = 0
+                    pause_gap = 0
 
                 running = not running
-                intro = False
+
 
             if running:
                 if event.type == food_timer:
@@ -212,20 +214,20 @@ def main(population, bio_density):
             screen.blit(menu_surf, (0, 0))
             display_score(screen, font, start_time, pause_gap)
             display_bio_density(screen, font, bio_density)
-            population = display_population(screen, font, ducks)
+            display_population(screen, font, ducks)
 
             if pause_button.draw(screen):
-                pause_start = int(pygame.time.get_ticks() / 1000) - pause_start
+                pause_start = int(pygame.time.get_ticks() / 1000) - pause_gap -start_time
                 pause_button.image = pause_img
                 running = not running
 
             if restart_button.draw(screen):
                 restart_button.action = False
-                pause_start = 0
-                pause_gap = 0
+                ducks.empty()
+                bugs.empty()
                 intro = True
                 running = False
-                start_time = int(pygame.time.get_ticks() / 1000)
+                plt.close()
 
             # wykres
             draw_population_graph(ax, ducks)
@@ -251,18 +253,26 @@ def main(population, bio_density):
             screen.blit(menu_surf, (0, 0))
             frozen_time(screen, font, pause_start)
             display_bio_density(screen, font, bio_density)
-            population = display_population(screen, font, ducks)
+            display_population(screen, font, ducks)
 
             if not pause_button.draw(screen):
                 running = not running
                 pause_button.image = play_img
 
-            restart_button.draw(screen)
-            pause_gap = calculate_pause(pause_start)
+            if restart_button.draw(screen):
+                restart_button.action = False
+                ducks.empty()
+                bugs.empty()
+                intro = True
+                running = False
+                plt.close()
 
-        if population == 0:
+            pause_gap = calculate_pause(pause_start + start_time)
+
+        if len(ducks.sprites()) == 0 and not intro:
             running = False
-            draw_population_graph(ax, [])
+            pause_start = int(pygame.time.get_ticks() / 1000) - pause_gap - start_time
+            # draw_population_graph(ax, [])
 
         pygame.display.update()
         

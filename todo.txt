@@ -20,7 +20,7 @@ TODO
 
 5. menu
     - przycisk stop ===DONE===
-    - restart -> funckja start simulation
+    - restart -> funckja start simulation ===DONE===
     - lepsza grafika ===DONE===
 
 6. starting page
@@ -29,4 +29,3 @@ TODO
     - ustawienia
         + populacja
         + biodensity
-    - przycisk start
