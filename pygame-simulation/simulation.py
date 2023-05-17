@@ -1,5 +1,6 @@
 import pygame
 from sys import exit
+import numpy as np
 from random import randint, randrange
 from collections import Counter
 import matplotlib.pyplot as plt
@@ -41,7 +42,7 @@ def display_population(screen, font, ducks):
 
 # === HELPER FUNCTIONS ===
 
-def collision_sprite(ducks, bugs):
+def collision_sprite(ducks, bugs, rows, colums):
     """
     Funkcja sprawdza kolizje pomiędzy obiektami (czyt. czy kaczka weszła na bug'a)
     Jeżeli tak, to zwiększy energie kaczki i usunie obiekt bug'a
@@ -50,8 +51,18 @@ def collision_sprite(ducks, bugs):
     :return: None
     """
     for duck in ducks.sprites():
-        if pygame.sprite.spritecollide(duck, bugs, True):
-            duck.eat()
+        target_exist = False
+        for bug in bugs.sprites():
+            if pygame.sprite.collide_rect(duck, bug):
+                duck.eat()
+                bug.kill()
+            # print(f"{duck.target}")
+            # print(f"{(bug.rect.y // 15, (bug.rect.x - menu_width)//15 )=}")
+            if duck.target == ((bug.rect.y // 15) % rows, (bug.rect.x - menu_width)//15 % colums):
+                target_exist = True
+        if not target_exist:
+            # print(f"zmiana targetu")
+            duck.target = None
 
 
 # === GRAPH ===
@@ -80,21 +91,23 @@ def draw_population_graph(ax, group):
 
 def main(population, bio_density):
 
-    def generate_food(size: int) -> object:
+    def generate_food(board, size: int) -> object:
         # Funkcja generująca jedzenie
-        return Food(x = randrange(menu_width + size, screen_width - size, size),
-                    y = randrange(1 + size, screen_height - size, size))
+        x = randrange(menu_width + size, screen_width - size, size)
+        y = randrange(1 + size, screen_height - size, size)
+        board[y//15][(x - menu_width)//15] = -1
+        return Food(x, y)
 
-    def new_food(food_frequency: float) -> None:
+    def new_food(board, food_frequency: float) -> None:
         '''
         Funkcja dodaje jedzenie na planszę.
         Im większe frequency tym mniej jedzenia się pojawi.
         '''
         food_width = int(5) # dla jedzenia o szerokości 5
         for i in range(int(bio_density * screen_height ** 2 // (food_frequency ** 2))):
-            new_food = generate_food(food_width)
+            new_food = generate_food(board, food_width)
             while new_food in bugs:
-                new_food = generate_food(food_width)
+                new_food = generate_food(board, food_width)
             bugs.add(new_food)
         # Szerokość jedzenia to 5, dlatego +/- 5, dzięki temu jedzenie na siebie nie na chodzi
 
@@ -110,8 +123,8 @@ def main(population, bio_density):
                 Duck(
                     name = f"Kaczucha no {i}",
                     speed = randint(6, 10),
-                    sense = randint(1, 5),
-                    energy = 15000,
+                    sense = randint(1,4),
+                    energy = 3000,
                     x = randint(width, width + height),
                     y = randint(1, height),
                     group = ducks
@@ -134,13 +147,13 @@ def main(population, bio_density):
     duck_logo_rect = duck_logo.get_rect(center=(screen_width // 2, screen_height // 2))
 
     game_name = font.render('Ruber duck natural selection simulation', False, (0, 0, 0))
-    game_name_rect = game_name.get_rect(center=(screen_width // 2, 200))
+    game_name_rect = game_name.get_rect(center=(screen_width // 2, 300))
 
     game_message = font.render('Press space to run', False, (0, 0, 0))
-    game_message_rect = game_message.get_rect(center=(screen_width // 2, 600))
+    game_message_rect = game_message.get_rect(center=(screen_width // 2, 700))
 
     # tło do symulacji
-    background_surf = pygame.image.load('graphics/bg1.png').convert()
+    background_surf = pygame.image.load('graphics/bg2.jpg').convert()
 
     # obszar menu bocznego
     menu_surf = pygame.Surface((menu_width, screen_height))
@@ -185,8 +198,10 @@ def main(population, bio_density):
                     pause_button.image = pause_img if pause_button.action else play_img
                 else:
                     intro = False
+                    board = np.zeros((screen_height//15, screen_height//15), dtype=np.int32)
+
                     new_ducks(population, menu_width, screen_height)
-                    new_food(20)  # Początkowe jedzenie const = 20
+                    new_food(board, 40)  # Początkowe jedzenie const = 20
 
                     # deklaracja wykresu
                     fig, ax = plt.subplots()
@@ -201,7 +216,7 @@ def main(population, bio_density):
 
             if running:
                 if event.type == food_timer:
-                    new_food(40)
+                    new_food(board, 60)
 
 
         if running:
@@ -238,10 +253,10 @@ def main(population, bio_density):
 
             # ducks
             ducks.draw(screen)
-            ducks.update(menu_width, (screen_width, screen_height))
+            ducks.update(menu_width, (screen_width, screen_height), board)
 
             # sprawdzanie kolizji
-            collision_sprite(ducks, bugs)
+            collision_sprite(ducks, bugs, board.shape[0], board.shape[1])
 
         elif intro:
             screen.fill((255, 255, 255))
@@ -272,7 +287,6 @@ def main(population, bio_density):
         if len(ducks.sprites()) == 0 and not intro:
             running = False
             pause_start = int(pygame.time.get_ticks() / 1000) - pause_gap - start_time
-            # draw_population_graph(ax, [])
 
         pygame.display.update()
         
@@ -283,7 +297,7 @@ def main(population, bio_density):
 if __name__ == '__main__':
     menu_width = 300
 
-    screen_height = 800
+    screen_height = 1050
     screen_width = menu_width + screen_height
     
     main(40, 0.3)

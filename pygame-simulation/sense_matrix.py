@@ -37,7 +37,7 @@ def test_sense(rows: int, columns: int):
                 return (y % rows, x % columns)
         return None
 
-    def closest_food(y: int, x: int, sense: int) -> (tuple, int):
+    def closest_food(y: int, x: int, sense: int, dir) -> (tuple, int):
         '''
         Funkcja przyjmuje współrzędne kaczki oraz jej sense
         Zwraca krotkę, gdzie są współrzędne najbliższego jedzenia, 
@@ -48,23 +48,19 @@ def test_sense(rows: int, columns: int):
         tylko swap x oraz y
         '''
         coordinates = [[y % rows, x % columns]]
-        print(f"{coordinates}")
         check = None
         for i in range(1, sense + 1):
-
             for j in range(0, len(coordinates)):
-                # print(f"{coordinates[j][0] - 1=}")
-                coordinates[j][0] = (coordinates[j][0] - 1) % rows
-                # print(f"{coordinates=}")
+                coordinates[j][0], coordinates[j][1] = (coordinates[j][0] + dir[1]) % rows,  (coordinates[j][1] + dir[0]) % columns
 
-            coordinates.append([coordinates[0][0], (coordinates[0][1] - i) % columns])
-            coordinates.append([coordinates[0][0], (coordinates[0][1] + i) % columns])
+            coordinates.append([coordinates[0][0] + dir[0]*i, (coordinates[0][1] + dir[1]*i) % columns])
+            coordinates.append([coordinates[0][0] - dir[0]*i, (coordinates[0][1] - dir[1]*i) % columns])
             check = check_food(coordinates)
-            print(f"odeległość {i} \t {coordinates=}")
+
             if check:
                 return check
     
-    return closest_food(duck_y, duck_x, 3)
+    return closest_food(duck_y, duck_x, 3, (1, 0))
 
 # krotka to współrzędne punktu, najlbiższego jedzenia, jak None to znaczy, że nie ma jedzenia w zasięgu
 # druga wartość zwraca liczbę ruchów
