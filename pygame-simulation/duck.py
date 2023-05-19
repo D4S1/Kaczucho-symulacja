@@ -11,10 +11,14 @@ class Duck(pygame.sprite.Sprite):
         # PARAMETRY ORGANIZMU
         self.name = name
 
+        # target
         self.target = None
+        self.dx = 0
+        self.dy = 0
 
         self.speed = speed
         self.sense = sense
+
         self.energy = energy
         self.group = group
 
@@ -86,6 +90,7 @@ class Duck(pygame.sprite.Sprite):
 
     def closest_food(self, board, menu_width):
         """
+        NIEAKTUALNY OPIS
         Funkcja przyjmuje współrzędne kaczki oraz jej sense
         Zwraca krotkę, gdzie są współrzędne najbliższego jedzenia,
         ewentualnie None, jeśli jedzenia nie znalazł
@@ -101,15 +106,14 @@ class Duck(pygame.sprite.Sprite):
         for i in range(1, self.sense + 1):
 
             for j in range(0, len(coordinates)):
-                for j in range(0, len(coordinates)):
-                    coordinates[j][0], coordinates[j][1] = (coordinates[j][0] + dir[1]) % rows, (
-                                coordinates[j][1] + dir[0]) % columns
+                coordinates[j][0], coordinates[j][1] = (coordinates[j][0] + dir[1]) % rows, (coordinates[j][1] + dir[0]) % columns
 
-                coordinates.append([coordinates[0][0] + dir[0] * i, (coordinates[0][1] + dir[1] * i) % columns])
-                coordinates.append([coordinates[0][0] - dir[0] * i, (coordinates[0][1] - dir[1] * i) % columns])
+            coordinates.append([coordinates[0][0] + dir[0] * i, (coordinates[0][1] + dir[1] * i) % columns])
+            coordinates.append([coordinates[0][0] - dir[0] * i, (coordinates[0][1] - dir[1] * i) % columns])
             check = self.check_food(board, coordinates)
 
             if check:
+                print(f"{self.name}\t{check=}")
                 return check
 
     def move_to_target(self, menu_width):
@@ -121,7 +125,6 @@ class Duck(pygame.sprite.Sprite):
                 self.rect.y = self.target[0] * 15
             if self.target[0] == self.rect.y//15:
                 next_dir = 'left' if self.target[1] <= (self.rect.x - menu_width) else 'right'
-
 
         elif next_dir in ['left', 'right']:
             if next_dir == 'left' and self.rect.x//15 < self.target[1] or next_dir == 'right' and self.rect.x//15 > self.target[1]:

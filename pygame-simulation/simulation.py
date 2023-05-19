@@ -111,7 +111,6 @@ def main(population, bio_density):
             bugs.add(new_food)
         # Szerokość jedzenia to 5, dlatego +/- 5, dzięki temu jedzenie na siebie nie na chodzi
 
-
     def new_ducks(number: int, width: int, height: int) -> None:
         '''
         Funkcja dodaje number kaczek do symulacji 
@@ -179,7 +178,6 @@ def main(population, bio_density):
     # Timer
     food_timer = pygame.USEREVENT + 1
     pygame.time.set_timer(food_timer, 4000)
-
 
     while True:
 
@@ -300,4 +298,4 @@ if __name__ == '__main__':
     screen_height = 1050
     screen_width = menu_width + screen_height
     
-    main(40, 0.3)
+    main(population=15, bio_density=0.15)
