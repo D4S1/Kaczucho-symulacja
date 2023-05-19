@@ -122,7 +122,7 @@ def main(population, bio_density):
                 Duck(
                     name = f"Kaczucha no {i}",
                     speed = randint(6, 10),
-                    sense = randint(1,4),
+                    sense = 100,
                     energy = 3000,
                     x = randint(width, width + height),
                     y = randint(1, height),
@@ -251,7 +251,7 @@ def main(population, bio_density):
 
             # ducks
             ducks.draw(screen)
-            ducks.update(menu_width, (screen_width, screen_height), board)
+            ducks.update(menu_width, (screen_width, screen_height), bugs)
 
             # sprawdzanie kolizji
             collision_sprite(ducks, bugs, board.shape[0], board.shape[1])
@@ -298,4 +298,4 @@ if __name__ == '__main__':
     screen_height = 1050
     screen_width = menu_width + screen_height
     
-    main(population=15, bio_density=0.15)
+    main(population=20, bio_density=0.15)
