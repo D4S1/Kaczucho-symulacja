@@ -34,24 +34,34 @@ class Duck(pygame.sprite.Sprite):
 
         # ustawienie stanu animacji
         self.dir = [0, -1]
-        # self.duck_frame_idx = 0
+        self.duck_frame_idx = 0
 
+        self.images = [
+            pygame.image.load('graphics/d1.png').convert_alpha(),
+            pygame.image.load('graphics/d2.png').convert_alpha(),
+            pygame.image.load('graphics/d3.png').convert_alpha()
+        ]
         # Pygame owe rzeczy
-        self.image = pygame.image.load('graphics/d1.png').convert_alpha()
+        self.image = self.images[0]
         self.rect = self.image.get_rect(midbottom=(x, y))
 
-    def animation_state(self, next_dir):
+    def animation_state(self):
         """
         funkcja ustawia, która z grafik animacji powinna zostać w danej klatce wyświetlona
         """
-        if next_dir != self.dir:
-            self.dir = next_dir
+        # chcemu żeby nowa grafika się pojawiała co kilka klatek
+        self.duck_frame_idx += 0.2
+        if self.duck_frame_idx >= len(self.images): self.duck_frame_idx = 0
 
-        # # chcemu żeby nowa grafika się pojawiała co kilka klatek
-        # self.duck_frame_idx += 0.2
-        # if self.duck_frame_idx >= len(self.frames[self.duck_direction]): self.duck_frame_idx = 0
+        self.image = self.images[int(self.duck_frame_idx)]
 
-        # self.image =
+        if self.dir[1] != 0:
+            self.image = pygame.transform.rotate(self.image, math.degrees(math.atan2(self.dir[0], self.dir[1])) + 180)
+        else:
+            if self.dir[0] >= 0:
+                self.image = pygame.transform.rotate(self.image, -90)
+            else:
+                self.image = pygame.transform.rotate(self.image, 90)
 
     def i_see(self, vector_to_point, cone_min_vec, cone_max_vec, ):
 
@@ -119,6 +129,8 @@ class Duck(pygame.sprite.Sprite):
 
         if self.rect.top < 0: self.rect.bottom = screen_size[1]
         if self.rect.bottom > screen_size[1]: self.rect.top = 0
+
+        self.animation_state()
 
     def energy_lost(self):
         '''

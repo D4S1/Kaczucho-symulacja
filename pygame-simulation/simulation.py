@@ -152,7 +152,8 @@ def main(population, bio_density):
     game_message_rect = game_message.get_rect(center=(screen_width // 2, 700))
 
     # tło do symulacji
-    background_surf = pygame.image.load('graphics/bg2.jpg').convert()
+    background_surf = pygame.Surface((screen_height, screen_height))
+    background_surf.fill((65, 105, 225))
 
     # obszar menu bocznego
     menu_surf = pygame.Surface((menu_width, screen_height))
