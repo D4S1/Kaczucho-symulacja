@@ -21,13 +21,14 @@ class Duck(pygame.sprite.Sprite):
         self.group = group
 
         # Koszt energii na 1 krok
-        self.step_energy_cost = self.speed**2 / 1.5
+        self.step_energy_cost = self.speed**2 / 4 + self.sense/50
 
         # Koszt energii na rozmnażanie
-        self.reproduction_energy_cost = 20 * self.step_energy_cost
+        self.reproduction_energy_cost = 1100
 
         # Prawdopodobieństwo, że zajdzie mutacja przy rozmnażaniu
-        self.mutation_probability = 0.5
+        self.speed_mutation_probability = 0.7
+        self.sense_mutation_probability = 0.8
 
         # Prawdopodobieńśtwo, że kaczucha zmieni kierunek
         self.change_dir_probability = 0.2
@@ -106,10 +107,11 @@ class Duck(pygame.sprite.Sprite):
     def random_dir(self):
         # ustawienie nowego kierunku
         next_dir = self.dir
+        lr = choice([1, -1])
         if random() < self.change_dir_probability:
             next_dir = [
-                self.dir[0] * math.cos(math.pi / 12) - self.dir[1] * math.sin(math.pi / 12),
-                self.dir[0] * math.sin(math.pi / 12) + self.dir[1] * math.cos(math.pi / 12)
+                self.dir[0] * math.cos(math.pi / 12) - self.dir[1] * math.sin(lr * math.pi / 12),
+                self.dir[0] * math.sin(lr * math.pi / 12) + self.dir[1] * math.cos(math.pi / 12)
             ]
 
         self.dir = next_dir
@@ -148,16 +150,17 @@ class Duck(pygame.sprite.Sprite):
         speed = self.speed
         sense = self.sense
 
-        if random() < self.mutation_probability:
+        if random() < self.speed_mutation_probability:
             if speed <= 3 or random() >= 0.5:
                 speed += math.ceil(0.1 * speed)
             else:
                 speed -= math.ceil(0.1 * speed)
 
-            if sense <= 1 or random() >= 0.5:
-                sense += 1
+        if random() < self.sense_mutation_probability:
+            if sense == 1 or random() >= 0.5:
+                sense += 25
             else:
-                sense -= 1
+                sense -= 25
 
         return speed, sense
 
@@ -167,7 +170,7 @@ class Duck(pygame.sprite.Sprite):
         warto się zastanowić nad energią graniczną wymaganą do rozmnażania,
         energią zużywaną na rozmnażanie i energią nadawaną dzieciom
         """
-        if self.energy >= 5 * self.reproduction_energy_cost:
+        if self.energy >= 3 * self.reproduction_energy_cost:
             self.energy -= self.reproduction_energy_cost
             speed, sense = self.mutate()
             self.group.add(
@@ -175,7 +178,7 @@ class Duck(pygame.sprite.Sprite):
                     name=f"Kaczucha",
                     speed=speed,
                     sense=sense,
-                    energy=2 * self.reproduction_energy_cost,
+                    energy=1000,
                     x=self.rect.x,
                     y=self.rect.y,
                     group=self.group

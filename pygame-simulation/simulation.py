@@ -81,9 +81,7 @@ def draw_population_graph(ax, group):
         y = [duck.sense for duck in group]
         count = Counter(zip(x, y))
         size = [50 * count[(x1, y1)] for x1, y1 in zip(x, y)]
-        ax.set(xlim=(0, 15), ylim=(0, 10), xlabel="speed", ylabel="sense", title="Populacja kaczek")
-        ax.set_xlim(0, 15)
-        ax.set_ylim(0, 10)
+        ax.set(xlim=(0, 15), ylim=(0, 300), xlabel="speed", ylabel="sense", title="Populacja kaczek")
         ax.scatter(x, y, s=size)
     plt.show(block=False)
     plt.pause(1./30)
@@ -123,7 +121,7 @@ def main(population, bio_density):
                     name = f"Kaczucha no {i}",
                     speed = randint(6, 10),
                     sense = 100,
-                    energy = 3000,
+                    energy = 1000,
                     x = randint(width, width + height),
                     y = randint(1, height),
                     group = ducks
