@@ -81,9 +81,7 @@ def draw_population_graph(ax, group):
         y = [duck.sense for duck in group]
         count = Counter(zip(x, y))
         size = [50 * count[(x1, y1)] for x1, y1 in zip(x, y)]
-        ax.set(xlim=(0, 15), ylim=(0, 10), xlabel="speed", ylabel="sense", title="Populacja kaczek")
-        ax.set_xlim(0, 15)
-        ax.set_ylim(0, 10)
+        ax.set(xlim=(0, 15), ylim=(0, 300), xlabel="speed", ylabel="sense", title="Populacja kaczek")
         ax.scatter(x, y, s=size)
     plt.show(block=False)
     plt.pause(1./30)
@@ -111,7 +109,6 @@ def main(population, bio_density):
             bugs.add(new_food)
         # Szerokość jedzenia to 5, dlatego +/- 5, dzięki temu jedzenie na siebie nie na chodzi
 
-
     def new_ducks(number: int, width: int, height: int) -> None:
         '''
         Funkcja dodaje number kaczek do symulacji 
@@ -123,8 +120,8 @@ def main(population, bio_density):
                 Duck(
                     name = f"Kaczucha no {i}",
                     speed = randint(6, 10),
-                    sense = randint(1,4),
-                    energy = 3000,
+                    sense = 100,
+                    energy = 1000,
                     x = randint(width, width + height),
                     y = randint(1, height),
                     group = ducks
@@ -142,8 +139,8 @@ def main(population, bio_density):
 
     # intro screen
 
-    duck_logo = pygame.image.load('graphics/duckies/front.png').convert_alpha()
-    duck_logo = pygame.transform.rotozoom(duck_logo, 0, 4)
+    duck_logo = pygame.image.load('graphics/dt.png').convert_alpha()
+    duck_logo = pygame.transform.rotozoom(duck_logo, 0, 0.7)
     duck_logo_rect = duck_logo.get_rect(center=(screen_width // 2, screen_height // 2))
 
     game_name = font.render('Ruber duck natural selection simulation', False, (0, 0, 0))
@@ -153,7 +150,8 @@ def main(population, bio_density):
     game_message_rect = game_message.get_rect(center=(screen_width // 2, 700))
 
     # tło do symulacji
-    background_surf = pygame.image.load('graphics/bg2.jpg').convert()
+    background_surf = pygame.Surface((screen_height, screen_height))
+    background_surf.fill((65, 105, 225))
 
     # obszar menu bocznego
     menu_surf = pygame.Surface((menu_width, screen_height))
@@ -179,7 +177,6 @@ def main(population, bio_density):
     # Timer
     food_timer = pygame.USEREVENT + 1
     pygame.time.set_timer(food_timer, 4000)
-
 
     while True:
 
@@ -253,7 +250,7 @@ def main(population, bio_density):
 
             # ducks
             ducks.draw(screen)
-            ducks.update(menu_width, (screen_width, screen_height), board)
+            ducks.update(menu_width, (screen_width, screen_height), bugs)
 
             # sprawdzanie kolizji
             collision_sprite(ducks, bugs, board.shape[0], board.shape[1])
@@ -300,4 +297,4 @@ if __name__ == '__main__':
     screen_height = 1050
     screen_width = menu_width + screen_height
     
-    main(40, 0.3)
+    main(population=20, bio_density=0.15)

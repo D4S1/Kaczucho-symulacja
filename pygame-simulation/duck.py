@@ -11,149 +11,128 @@ class Duck(pygame.sprite.Sprite):
         # PARAMETRY ORGANIZMU
         self.name = name
 
+        # target
         self.target = None
 
         self.speed = speed
         self.sense = sense
+
         self.energy = energy
         self.group = group
 
         # Koszt energii na 1 krok
-        self.step_energy_cost = self.speed**2 / 1.5
+        self.step_energy_cost = self.speed**2 / 4 + self.sense/50
 
         # Koszt energii na rozmnażanie
-        self.reproduction_energy_cost = 20 * self.step_energy_cost
+        self.reproduction_energy_cost = 1100
 
         # Prawdopodobieństwo, że zajdzie mutacja przy rozmnażaniu
-        self.mutation_probability = 0.5
+        self.speed_mutation_probability = 0.7
+        self.sense_mutation_probability = 0.8
 
         # Prawdopodobieńśtwo, że kaczucha zmieni kierunek
-        self.change_dir_probability = 0.3
-
-        # GRAFIKI DO ANIMACJI
-        self.frames = {
-        'front': [pygame.image.load('graphics/duckies/front.png').convert_alpha()],
-        'back': [pygame.image.load('graphics/duckies/back.png').convert_alpha()],
-        'down': [
-            pygame.image.load('graphics/duckies/front-walk-1.png').convert_alpha(),
-            pygame.image.load('graphics/duckies/front-walk-2.png').convert_alpha(),
-            pygame.image.load('graphics/duckies/front-walk-3.png').convert_alpha(),
-            pygame.image.load('graphics/duckies/front-walk-4.png').convert_alpha(),
-        ],
-        'up': [
-            pygame.image.load('graphics/duckies/back-walk-1.png').convert_alpha(),
-            pygame.image.load('graphics/duckies/back-walk-2.png').convert_alpha(),
-            pygame.image.load('graphics/duckies/back-walk-3.png').convert_alpha(),
-            pygame.image.load('graphics/duckies/back-walk-4.png').convert_alpha(),
-        ],
-        'right': [
-            pygame.image.load('graphics/duckies/side-walk-1.png').convert_alpha(),
-            pygame.image.load('graphics/duckies/side-walk-2.png').convert_alpha(),
-            pygame.image.load('graphics/duckies/side-walk-3.png').convert_alpha(),
-            pygame.image.load('graphics/duckies/side-walk-4.png').convert_alpha(),
-        ],
-        }
-        self.frames['left'] = [pygame.transform.flip(img, True, False) for img in self.frames['right']]
+        self.change_dir_probability = 0.2
 
         # ustawienie stanu animacji
-        self.directions = {'down': (0, 1), 'up': (0, -1), 'right': (1, 0), 'left': (-1, 0)}
-        self.duck_direction = choice(list(self.directions.keys()))
+        self.dir = [0, -1]
         self.duck_frame_idx = 0
 
+        self.images = [
+            pygame.image.load('graphics/d1.png').convert_alpha(),
+            pygame.image.load('graphics/d2.png').convert_alpha(),
+            pygame.image.load('graphics/d3.png').convert_alpha()
+        ]
         # Pygame owe rzeczy
-        self.image = self.frames['front'][0]
+        self.image = self.images[0]
         self.rect = self.image.get_rect(midbottom=(x, y))
 
-    def animation_state(self, next_dir):
+    def animation_state(self):
         """
         funkcja ustawia, która z grafik animacji powinna zostać w danej klatce wyświetlona
         """
-        if next_dir != self.duck_direction: 
-            self.duck_frame_idx = 0
-            self.duck_direction = next_dir
-
         # chcemu żeby nowa grafika się pojawiała co kilka klatek
         self.duck_frame_idx += 0.2
-        if self.duck_frame_idx >= len(self.frames[self.duck_direction]): self.duck_frame_idx = 0
+        if self.duck_frame_idx >= len(self.images): self.duck_frame_idx = 0
 
-        self.image = self.frames[self.duck_direction][int(self.duck_frame_idx)]
+        self.image = self.images[int(self.duck_frame_idx)]
 
-    def check_food(self, board, lista: list) -> tuple:
-        rows, columns = board.shape[0], board.shape[1]
-        for y, x in lista:
-            if board[y % rows][x % columns] == -1:
-                return y % rows, x % columns
+        if self.dir[1] != 0:
+            self.image = pygame.transform.rotate(self.image, math.degrees(math.atan2(self.dir[0], self.dir[1])) + 180)
+        else:
+            if self.dir[0] >= 0:
+                self.image = pygame.transform.rotate(self.image, -90)
+            else:
+                self.image = pygame.transform.rotate(self.image, 90)
 
-    def closest_food(self, board, menu_width):
-        """
-        Funkcja przyjmuje współrzędne kaczki oraz jej sense
-        Zwraca krotkę, gdzie są współrzędne najbliższego jedzenia,
-        ewentualnie None, jeśli jedzenia nie znalazł
-        oraz int czyli liczbe ruchów potrzebnej kaczce do tego ruchu...
-        Program działa dla kaczki zwróconej na wprost (w góre), jeśli kaczka
-        jest zwrócona na dół to trzeba y + 1, a jak w prawo i w lewo to analogicznie
-        tylko swap x oraz y
-        """
-        dir = self.directions[self.duck_direction]
-        rows, columns = board.shape[0], board.shape[1]
-        coordinates = [[self.rect.y//15, (self.rect.x - menu_width)//15]]
+    def i_see(self, vector_to_point, cone_min_vec, cone_max_vec, ):
 
-        for i in range(1, self.sense + 1):
+        cross_1 = cone_min_vec[0] * vector_to_point[1] - cone_min_vec[1] * vector_to_point[0]
+        cross_2 = cone_max_vec[0] * vector_to_point[1] - cone_max_vec[1] * vector_to_point[0]
 
-            for j in range(0, len(coordinates)):
-                for j in range(0, len(coordinates)):
-                    coordinates[j][0], coordinates[j][1] = (coordinates[j][0] + dir[1]) % rows, (
-                                coordinates[j][1] + dir[0]) % columns
+        dot_1 = cone_min_vec[0] * vector_to_point[0] + cone_min_vec[1] * vector_to_point[1]
 
-                coordinates.append([coordinates[0][0] + dir[0] * i, (coordinates[0][1] + dir[1] * i) % columns])
-                coordinates.append([coordinates[0][0] - dir[0] * i, (coordinates[0][1] - dir[1] * i) % columns])
-            check = self.check_food(board, coordinates)
+        if (cross_1 < 0 < cross_2 or cross_1 > 0 > cross_2) and dot_1 > 0:
+            return True
+        else:
+            return False
 
-            if check:
-                return check
+    def find_target(self, targets):
+        left_vec = [
+            self.dir[0] * math.cos(math.pi / 6) - self.dir[1] * math.sin(math.pi / 6),
+            self.dir[0] * math.sin(math.pi / 6) + self.dir[1] * math.cos(math.pi / 6)
+        ]
 
-    def move_to_target(self, menu_width):
-        next_dir = self.duck_direction
-        # print(f"=====================\n BEFORE {self.duck_direction=}")
-        # print(f"{self.name=}    {self.sense=}    {self.target=} {(self.rect.x - menu_width)//15=} {self.rect.y//15=}")
-        if next_dir in ['up', 'down']:
-            if next_dir == 'up' and self.rect.y//15 < self.target[0] or next_dir == 'down' and self.rect.y//15 > self.target[0]:
-                self.rect.y = self.target[0] * 15
-            if self.target[0] == self.rect.y//15:
-                next_dir = 'left' if self.target[1] <= (self.rect.x - menu_width) else 'right'
+        right_vec = [
+            self.dir[0] * math.cos(-math.pi / 6) - self.dir[1] * math.sin(-math.pi / 6),
+            self.dir[0] * math.sin(-math.pi / 6) + self.dir[1] * math.cos(-math.pi / 6)
+        ]
+        min_dis = self.sense
+        c = False
+        for target in targets:
+            point = (target.rect.x, target.rect.y)
+            vector_to_point = [point[0] - self.rect.x, point[1] - self.rect.y]
+            dis = (vector_to_point[0] ** 2 + vector_to_point[1] ** 2) ** (1/2)
+            if dis <= self.sense and self.i_see(vector_to_point, left_vec, right_vec) and dis < min_dis:
+                self.target = point
+                min_dis = dis
+                c = True
+        return c
 
-
-        elif next_dir in ['left', 'right']:
-            if next_dir == 'left' and self.rect.x//15 < self.target[1] or next_dir == 'right' and self.rect.x//15 > self.target[1]:
-                self.rect.x = self.target[1] * 15 + menu_width
-
-            if self.target[1] == (self.rect.x - menu_width)//15:
-                next_dir = 'up' if self.target[0] <= self.rect.y else 'down'
-        self.animation_state(next_dir)
-        # print(f"AFTER {self.duck_direction=}\n =============================")
+    def move_to_target(self):
+        dx = self.target[0] - self.rect.x
+        dy = self.target[1] - self.rect.y
+        dis = (dx ** 2 + dy ** 2) ** (1/2)
+        self.dir = [dx/dis, dy/dis]
 
     def random_dir(self):
         # ustawienie nowego kierunku
-        next_dir = self.duck_direction
+        next_dir = self.dir
+        lr = choice([1, -1])
         if random() < self.change_dir_probability:
-            next_dir = choice(list(self.directions.keys()))
-        self.animation_state(next_dir)
+            next_dir = [
+                self.dir[0] * math.cos(math.pi / 12) - self.dir[1] * math.sin(lr * math.pi / 12),
+                self.dir[0] * math.sin(lr * math.pi / 12) + self.dir[1] * math.cos(math.pi / 12)
+            ]
+
+        self.dir = next_dir
 
     def move(self, menu_width, screen_size):
         """
-        funkcja modyfikująca współrzędne obiektu
+        funkcja modyfikująca współrzędne obiektu w nawiasie losowo
         """
-        # poruszamy się o self.speed pixli w danym kierunku
-        # nowa pozycja x-owa += kierunke[0] * speed
-        # możliwe kierunki -> (-1, 0), (0, -1), (1, 0), (0, 1), (0, 0)
-        self.rect.x += self.directions[self.duck_direction][0] * self.speed
+
+        self.rect.x += self.dir[0] * self.speed
+
         if self.rect.left < menu_width: self.rect.right = screen_size[0]
         if self.rect.right > screen_size[0]: self.rect.left = menu_width
 
         # tak samo ja wyżej tylko, że dla y
-        self.rect.y += self.directions[self.duck_direction][1] * self.speed
+        self.rect.y += self.dir[1] * self.speed
+
         if self.rect.top < 0: self.rect.bottom = screen_size[1]
         if self.rect.bottom > screen_size[1]: self.rect.top = 0
+
+        self.animation_state()
 
     def energy_lost(self):
         '''
@@ -171,16 +150,17 @@ class Duck(pygame.sprite.Sprite):
         speed = self.speed
         sense = self.sense
 
-        if random() < self.mutation_probability:
+        if random() < self.speed_mutation_probability:
             if speed <= 3 or random() >= 0.5:
                 speed += math.ceil(0.1 * speed)
             else:
                 speed -= math.ceil(0.1 * speed)
 
-            if sense <= 1 or random() >= 0.5:
-                sense += 1
+        if random() < self.sense_mutation_probability:
+            if sense == 1 or random() >= 0.5:
+                sense += 25
             else:
-                sense -= 1
+                sense -= 25
 
         return speed, sense
 
@@ -190,7 +170,7 @@ class Duck(pygame.sprite.Sprite):
         warto się zastanowić nad energią graniczną wymaganą do rozmnażania,
         energią zużywaną na rozmnażanie i energią nadawaną dzieciom
         """
-        if self.energy >= 5 * self.reproduction_energy_cost:
+        if self.energy >= 3 * self.reproduction_energy_cost:
             self.energy -= self.reproduction_energy_cost
             speed, sense = self.mutate()
             self.group.add(
@@ -198,7 +178,7 @@ class Duck(pygame.sprite.Sprite):
                     name=f"Kaczucha",
                     speed=speed,
                     sense=sense,
-                    energy=2 * self.reproduction_energy_cost,
+                    energy=1000,
                     x=self.rect.x,
                     y=self.rect.y,
                     group=self.group
@@ -212,17 +192,10 @@ class Duck(pygame.sprite.Sprite):
         if self.energy <= 0:
             self.kill()
 
-    def update(self, menu_width, screen_size, board):
-        next_target = self.closest_food(board, menu_width)
-
-        if self.target is None or next_target is not None and (next_target[0]**2 + next_target[1]**2)**1/2 < (self.target[0]**2 + self.target[1]**2)**1/2:
-            self.target = next_target
-
-        if self.target is not None:
-            # print(f"Jestem na tropie")
-            self.move_to_target(menu_width)
+    def update(self, menu_width, screen_size, targets):
+        if self.find_target(targets):
+            self.move_to_target()
         else:
-            # print(f"chodze randomowo-> essa")
             self.random_dir()
 
         self.move(menu_width, screen_size)
