@@ -139,8 +139,8 @@ def main(population, bio_density):
 
     # intro screen
 
-    duck_logo = pygame.image.load('graphics/duckies/front.png').convert_alpha()
-    duck_logo = pygame.transform.rotozoom(duck_logo, 0, 4)
+    duck_logo = pygame.image.load('graphics/dt.png').convert_alpha()
+    duck_logo = pygame.transform.rotozoom(duck_logo, 0, 0.7)
     duck_logo_rect = duck_logo.get_rect(center=(screen_width // 2, screen_height // 2))
 
     game_name = font.render('Ruber duck natural selection simulation', False, (0, 0, 0))
